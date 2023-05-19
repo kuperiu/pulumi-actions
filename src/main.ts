@@ -1,3 +1,5 @@
+import { exec } from 'child_process'
+import * as fs from 'fs'
 import { resolve } from 'path'
 import * as core from '@actions/core'
 import { context } from '@actions/github'
@@ -20,7 +22,23 @@ const main = async () => {
   // If we get here, we're not in install-only mode.
   // Attempt to parse the full configuration and run the action.
   const config = await makeConfig()
+
   core.debug('Configuration is loaded')
+  try {
+    const indexFile = 'index.ts'
+    let file = ''
+    exec('npm install')
+    if (config.provision) {
+      file = 'shared.ts'
+    } else {
+      file = 'deploy.ts'
+    }
+    fs.copyFile(file, indexFile, (err) => {
+      if (err) throw err
+    })
+  } catch (err) {
+    console.log(`error: ${err}`)
+  }
   runAction(config)
 }
 
