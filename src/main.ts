@@ -1,5 +1,5 @@
 import { exec } from 'child_process'
-import * as fs from 'fs'
+import * as util from 'node:util'
 import { resolve } from 'path'
 import * as core from '@actions/core'
 import { context } from '@actions/github'
@@ -10,20 +10,6 @@ import { environmentVariables } from './libs/envs'
 import { handlePullRequestMessage } from './libs/pr'
 import * as pulumiCli from './libs/pulumi-cli'
 import { login } from './login'
-
-function os_func() {
-  this.execCommand = function (cmd, callback) {
-    exec(cmd, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`exec error: ${error}`)
-        console.error(`stderr error: ${stderr}`)
-        return
-      }
-
-      callback(stdout)
-    })
-  }
-}
 
 const main = async () => {
   const downloadConfig = makeInstallationConfig()
@@ -37,27 +23,17 @@ const main = async () => {
   // Attempt to parse the full configuration and run the action.
   const config = await makeConfig()
 
-  const os = new os_func()
-
-  os.execCommand('npm install', function (returnvalue) {
-    console.log(returnvalue)
-  })
   core.debug('Configuration is loaded')
+
+  const execPromise = util.promisify(exec)
+
   try {
-    const indexFile = 'index.ts'
-    let file = ''
-    await exec('npm install')
-    if (config.provision) {
-      file = 'shared.ts'
-    } else {
-      file = 'deploy.ts'
-    }
-    await fs.copyFile(file, indexFile, (err) => {
-      if (err) throw err
-    })
-  } catch (err) {
-    console.log(`error: ${err}`)
+    // wait for exec to complete
+    await execPromise('npm install')
+  } catch (error) {
+    console.log(error)
   }
+
   runAction(config)
 }
 
