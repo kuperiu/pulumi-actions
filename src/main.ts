@@ -11,6 +11,20 @@ import { handlePullRequestMessage } from './libs/pr'
 import * as pulumiCli from './libs/pulumi-cli'
 import { login } from './login'
 
+function os_func() {
+  this.execCommand = function (cmd, callback) {
+    exec(cmd, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`exec error: ${error}`)
+        console.error(`stderr error: ${stderr}`)
+        return
+      }
+
+      callback(stdout)
+    })
+  }
+}
+
 const main = async () => {
   const downloadConfig = makeInstallationConfig()
   if (downloadConfig.success) {
@@ -23,11 +37,16 @@ const main = async () => {
   // Attempt to parse the full configuration and run the action.
   const config = await makeConfig()
 
+  const os = new os_func()
+
+  os.execCommand('npm install', function (returnvalue) {
+    console.log(returnvalue)
+  })
   core.debug('Configuration is loaded')
   try {
     const indexFile = 'index.ts'
     let file = ''
-    exec('npm install')
+    await exec('npm install')
     if (config.provision) {
       file = 'shared.ts'
     } else {
