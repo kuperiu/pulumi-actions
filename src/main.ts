@@ -33,7 +33,7 @@ const main = async () => {
     } else {
       file = 'deploy.ts'
     }
-    fs.copyFile(file, indexFile, (err) => {
+    await fs.copyFile(file, indexFile, (err) => {
       if (err) throw err
     })
   } catch (err) {
