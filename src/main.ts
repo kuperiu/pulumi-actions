@@ -11,6 +11,22 @@ import { handlePullRequestMessage } from './libs/pr'
 import * as pulumiCli from './libs/pulumi-cli'
 import { login } from './login'
 
+async function executeCommand(command: string): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        reject(error)
+        return
+      }
+      if (stderr) {
+        reject(new Error(stderr))
+        return
+      }
+      resolve(stdout)
+    })
+  })
+}
+
 const main = async () => {
   const downloadConfig = makeInstallationConfig()
   if (downloadConfig.success) {
@@ -129,13 +145,11 @@ const runAction = async (config: Config): Promise<void> => {
 }
 
 ;(async () => {
-  const execPromise = util.promisify(exec)
-
   try {
-    // wait for exec to complete
-    await execPromise('npm install')
+    const result = await executeCommand('npm install')
+    console.log(result) // Output: Hello, world!
   } catch (error) {
-    console.log(error)
+    console.error(error)
   }
 
   try {
