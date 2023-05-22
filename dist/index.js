@@ -97283,11 +97283,21 @@ const main_main = () => __awaiter(void 0, void 0, void 0, function* () {
     console.log(process.cwd());
 });
 const copyFile = (config) => __awaiter(void 0, void 0, void 0, function* () {
+    const mainFile = 'index.ts';
+    const sharedFile = 'shared.ts';
+    const deployFile = 'deploy.ts';
     if (config.provision) {
-        external_fs_.copyFile('source.txt', 'destination.txt', (err) => {
+        external_fs_.copyFile(sharedFile, mainFile, (err) => {
             if (err)
                 throw err;
-            console.log('source.txt was copied to destination.txt');
+            console.log(`${sharedFile} was copied to ${mainFile}`);
+        });
+    }
+    else {
+        external_fs_.copyFile(deployFile, mainFile, (err) => {
+            if (err)
+                throw err;
+            console.log(`${deployFile} was copied to ${mainFile}`);
         });
     }
 });
