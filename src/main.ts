@@ -25,9 +25,9 @@ const main = async () => {
   core.debug('Configuration is loaded')
 
   if (config.provision) {
-    fs.copy('./infra/pulumi/shared.ts', '/infra/pulumi/index.ts')
+    await fs.copy('./infra/pulumi/shared.ts', '/infra/pulumi/index.ts')
   } else {
-    fs.copy('./infra/pulumi/deploy.ts', '/infra/pulumi/index.ts')
+    await fs.copy('./infra/pulumi/deploy.ts', '/infra/pulumi/index.ts')
   }
   runAction(config)
 }
