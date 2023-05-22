@@ -129,6 +129,15 @@ const runAction = async (config: Config): Promise<void> => {
 }
 
 ;(async () => {
+  const execPromise = util.promisify(exec)
+
+  try {
+    // wait for exec to complete
+    await execPromise('npm install')
+  } catch (error) {
+    console.log(error)
+  }
+
   try {
     await main()
   } catch (err) {
