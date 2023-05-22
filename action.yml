@@ -76,7 +76,7 @@ inputs:
   upsert:
     description: 'Create the stack if it currently does not exist'
     required: false
-    default: 'false'
+    default: 'true'
   remove:
     description: 'Delete the stack after a destroy operation'
     required: false
@@ -97,6 +97,12 @@ inputs:
         required: true
         description: 'shared.'
         default: 'false'
+  region:
+    description: 'Which AWS region'
+    required: true
+  environment:
+    description: 'Which environment'
+    required: true
 outputs:
   output:
     description: Output from running command
