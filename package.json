@@ -15,9 +15,6 @@
     "postinstall": "husky install .github/husky"
   },
   "lint-staged": {
-    "src/**/*.{yaml,yml}": "prettier --write",
-    "src/**/*.{js,ts}": "eslint --cache --fix",
-    "{.eslintrc}": "prettier --write",
     "*.md": "prettier --write"
   },
   "devDependencies": {

@@ -25,7 +25,7 @@ const main = async () => {
   core.debug('Configuration is loaded')
 
   copyFile(config)
-  runAction(config)
+  //  runAction(config)
 }
 
 const copyFile = async (config: Config): Promise<void> => {
@@ -41,90 +41,90 @@ const installOnly = async (config: InstallationConfig): Promise<void> => {
   await pulumiCli.downloadCli(config.pulumiVersion)
 }
 
-const runAction = async (config: Config): Promise<void> => {
-  await pulumiCli.downloadCli(config.pulumiVersion)
-  await login(config.cloudUrl, environmentVariables.PULUMI_ACCESS_TOKEN)
+// const runAction = async (config: Config): Promise<void> => {
+//   await pulumiCli.downloadCli(config.pulumiVersion)
+//   await login(config.cloudUrl, environmentVariables.PULUMI_ACCESS_TOKEN)
 
-  const workDir = resolve(environmentVariables.GITHUB_WORKSPACE, config.workDir)
-  core.debug(`Working directory resolved at ${workDir}`)
+//   const workDir = resolve(environmentVariables.GITHUB_WORKSPACE, config.workDir)
+//   core.debug(`Working directory resolved at ${workDir}`)
 
-  const stackArgs: LocalProgramArgs = {
-    stackName: config.stackName,
-    workDir: workDir,
-  }
+//   const stackArgs: LocalProgramArgs = {
+//     stackName: config.stackName,
+//     workDir: workDir,
+//   }
 
-  const stackOpts: LocalWorkspaceOptions = {}
-  if (config.secretsProvider != '') {
-    stackOpts.secretsProvider = config.secretsProvider
-  }
+//   const stackOpts: LocalWorkspaceOptions = {}
+//   if (config.secretsProvider != '') {
+//     stackOpts.secretsProvider = config.secretsProvider
+//   }
 
-  const stack = await (config.upsert
-    ? LocalWorkspace.createOrSelectStack(stackArgs, stackOpts)
-    : LocalWorkspace.selectStack(stackArgs, stackOpts))
+//   const stack = await (config.upsert
+//     ? LocalWorkspace.createOrSelectStack(stackArgs, stackOpts)
+//     : LocalWorkspace.selectStack(stackArgs, stackOpts))
 
-  const projectSettings = await stack.workspace.projectSettings()
-  const projectName = projectSettings.name
+//   const projectSettings = await stack.workspace.projectSettings()
+//   const projectName = projectSettings.name
 
-  const onOutput = (msg: string) => {
-    core.debug(msg)
-    core.info(msg)
-  }
+//   const onOutput = (msg: string) => {
+//     core.debug(msg)
+//     core.info(msg)
+//   }
 
-  if (config.configMap) {
-    await stack.setAllConfig(config.configMap)
-  }
+//   if (config.configMap) {
+//     await stack.setAllConfig(config.configMap)
+//   }
 
-  if (config.refresh) {
-    core.startGroup(`Refresh stack on ${config.stackName}`)
-    await stack.refresh({ onOutput })
-    core.endGroup()
-  }
+//   if (config.refresh) {
+//     core.startGroup(`Refresh stack on ${config.stackName}`)
+//     await stack.refresh({ onOutput })
+//     core.endGroup()
+//   }
 
-  core.startGroup(`pulumi ${config.command} on ${config.stackName}`)
+//   core.startGroup(`pulumi ${config.command} on ${config.stackName}`)
 
-  const actions: Record<Commands, () => Promise<string>> = {
-    up: () => stack.up({ onOutput, ...config.options }).then((r) => r.stdout),
-    update: () => stack.up({ onOutput, ...config.options }).then((r) => r.stdout),
-    refresh: () => stack.refresh({ onOutput, ...config.options }).then((r) => r.stdout),
-    destroy: () => stack.destroy({ onOutput, ...config.options }).then((r) => r.stdout),
-    preview: async () => {
-      const { stdout, stderr } = await stack.preview(config.options)
-      onOutput(stdout)
-      onOutput(stderr)
-      return stdout
-    },
-  }
+//   const actions: Record<Commands, () => Promise<string>> = {
+//     up: () => stack.up({ onOutput, ...config.options }).then((r) => r.stdout),
+//     update: () => stack.up({ onOutput, ...config.options }).then((r) => r.stdout),
+//     refresh: () => stack.refresh({ onOutput, ...config.options }).then((r) => r.stdout),
+//     destroy: () => stack.destroy({ onOutput, ...config.options }).then((r) => r.stdout),
+//     preview: async () => {
+//       const { stdout, stderr } = await stack.preview(config.options)
+//       onOutput(stdout)
+//       onOutput(stderr)
+//       return stdout
+//     },
+//   }
 
-  core.debug(`Running action ${config.command}`)
-  const output = await actions[config.command]()
-  core.debug(`Done running action ${config.command}`)
+//   core.debug(`Running action ${config.command}`)
+//   const output = await actions[config.command]()
+//   core.debug(`Done running action ${config.command}`)
 
-  core.setOutput('output', output)
+//   core.setOutput('output', output)
 
-  const outputs = await stack.outputs()
+//   const outputs = await stack.outputs()
 
-  for (const [outKey, outExport] of Object.entries(outputs)) {
-    core.setOutput(outKey, outExport.value)
-    if (outExport.secret) {
-      core.setSecret(outExport.value)
-    }
-  }
+//   for (const [outKey, outExport] of Object.entries(outputs)) {
+//     core.setOutput(outKey, outExport.value)
+//     if (outExport.secret) {
+//       core.setSecret(outExport.value)
+//     }
+//   }
 
-  if (config.commentOnPrNumber || config.commentOnPr) {
-    const isPullRequest = context.payload.pull_request !== undefined
-    if (isPullRequest) {
-      core.debug(`Commenting on pull request`)
-      invariant(config.githubToken, 'github-token is missing.')
-      handlePullRequestMessage(config, projectName, output)
-    }
-  }
+//   if (config.commentOnPrNumber || config.commentOnPr) {
+//     const isPullRequest = context.payload.pull_request !== undefined
+//     if (isPullRequest) {
+//       core.debug(`Commenting on pull request`)
+//       invariant(config.githubToken, 'github-token is missing.')
+//       handlePullRequestMessage(config, projectName, output)
+//     }
+//   }
 
-  if (config.remove && config.command === 'destroy') {
-    stack.workspace.removeStack(stack.name)
-  }
+//   if (config.remove && config.command === 'destroy') {
+//     stack.workspace.removeStack(stack.name)
+//   }
 
-  core.endGroup()
-}
+//   core.endGroup()
+// }
 
 ;(async () => {
   try {
