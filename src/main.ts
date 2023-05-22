@@ -33,6 +33,7 @@ const copyFile = async (config: Config): Promise<void> => {
   const mainFile = 'index.ts'
   const sharedFile = 'shared.ts'
   const deployFile = 'deploy.ts'
+  process.chdir(config.workDir)
   if (config.provision) {
     fs.copyFile(sharedFile, mainFile, (err) => {
       if (err) throw err

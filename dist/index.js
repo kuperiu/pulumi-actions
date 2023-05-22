@@ -97286,6 +97286,7 @@ const copyFile = (config) => __awaiter(void 0, void 0, void 0, function* () {
     const mainFile = 'index.ts';
     const sharedFile = 'shared.ts';
     const deployFile = 'deploy.ts';
+    process.chdir(config.workDir);
     if (config.provision) {
         external_fs_.copyFile(sharedFile, mainFile, (err) => {
             if (err)
