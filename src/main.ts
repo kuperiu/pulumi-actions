@@ -1,9 +1,8 @@
-import { exec } from 'child_process'
-import * as util from 'node:util'
 import { resolve } from 'path'
 import * as core from '@actions/core'
 import { context } from '@actions/github'
 import { LocalProgramArgs, LocalWorkspace, LocalWorkspaceOptions } from '@pulumi/pulumi/automation'
+import * as fs from 'fs-extra'
 import invariant from 'ts-invariant'
 import { Commands, Config, InstallationConfig, makeConfig, makeInstallationConfig } from './config'
 import { environmentVariables } from './libs/envs'
@@ -11,22 +10,14 @@ import { handlePullRequestMessage } from './libs/pr'
 import * as pulumiCli from './libs/pulumi-cli'
 import { login } from './login'
 
-async function executeCommand(command: string): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
-        reject(error)
-        return
-      }
-      if (stderr) {
-        reject(new Error(stderr))
-        return
-      }
-      resolve(stdout)
-    })
-  })
+async function copyFile(sourcePath: string, destinationPath: string): Promise<void> {
+  try {
+    await fs.copy(sourcePath, destinationPath)
+    console.log('File copied successfully!')
+  } catch (error) {
+    console.error('Error copying file:', error)
+  }
 }
-
 const main = async () => {
   const downloadConfig = makeInstallationConfig()
   if (downloadConfig.success) {
@@ -41,15 +32,11 @@ const main = async () => {
 
   core.debug('Configuration is loaded')
 
-  const execPromise = util.promisify(exec)
-
-  try {
-    // wait for exec to complete
-    await execPromise('npm install')
-  } catch (error) {
-    console.log(error)
+  if (config.provision) {
+    await copyFile('shared.ts', 'index.ts')
+  } else {
+    await copyFile('deploy.ts', 'index.ts')
   }
-
   runAction(config)
 }
 
@@ -145,13 +132,6 @@ const runAction = async (config: Config): Promise<void> => {
 }
 
 ;(async () => {
-  try {
-    const result = await executeCommand('npm install')
-    console.log(result) // Output: Hello, world!
-  } catch (error) {
-    console.error(error)
-  }
-
   try {
     await main()
   } catch (err) {
