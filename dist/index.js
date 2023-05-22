@@ -96936,14 +96936,24 @@ function makeInstallationConfig() {
         pulumiVersion: (0,main.getInput)('pulumi-version') || '^3',
     });
 }
+function getRepoName() {
+    const githubRepository = process.env['GITHUB_REPOSITORY'];
+    const repo = githubRepository.split('/');
+    return repo[1];
+}
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 function makeConfig() {
+    const repoName = getRepoName();
+    const region = (0,main.getInput)('region', { required: true });
+    const environment = (0,main.getInput)('environment', { required: true });
+    const stackName = `${repoName}-${environment}-${region}`;
     return {
         command: (0,main.getUnionInput)('command', {
             required: true,
             alternatives: ['up', 'update', 'refresh', 'destroy', 'preview'],
         }),
-        stackName: (0,main.getInput)('stack-name', { required: true }),
+        //stackName: getInput('stack-name', { required: true }),
+        stackName,
         pulumiVersion: (0,main.getInput)('pulumi-version', { required: true }),
         workDir: (0,main.getInput)('work-dir', { required: true }),
         secretsProvider: (0,main.getInput)('secrets-provider'),
@@ -97277,10 +97287,8 @@ const main_main = () => __awaiter(void 0, void 0, void 0, function* () {
     // Attempt to parse the full configuration and run the action.
     const config = yield makeConfig();
     core.debug('Configuration is loaded');
-    console.log(process.cwd());
     copyFile(config);
     runAction(config);
-    console.log(process.cwd());
 });
 const copyFile = (config) => __awaiter(void 0, void 0, void 0, function* () {
     const mainFile = 'index.ts';

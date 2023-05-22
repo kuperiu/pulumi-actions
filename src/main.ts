@@ -23,10 +23,8 @@ const main = async () => {
   const config = await makeConfig()
 
   core.debug('Configuration is loaded')
-  console.log(process.cwd())
   copyFile(config)
   runAction(config)
-  console.log(process.cwd())
 }
 
 const copyFile = async (config: Config): Promise<void> => {

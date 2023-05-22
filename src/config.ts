@@ -1,4 +1,4 @@
-import { ConfigMap } from '@pulumi/pulumi/automation';
+import { ConfigMap } from '@pulumi/pulumi/automation'
 import {
   getBooleanInput,
   getInput,
@@ -6,9 +6,9 @@ import {
   getNumberInput,
   getUnionInput,
   getYAMLInput,
-} from 'actions-parsers';
-import * as rt from 'runtypes';
-import { parseSemicolorToArray } from './libs/utils';
+} from 'actions-parsers'
+import * as rt from 'runtypes'
+import { parseSemicolorToArray } from './libs/utils'
 
 // installationConfig is the expected Action inputs when
 // the user intends to download the Pulumi CLI without
@@ -17,25 +17,35 @@ import { parseSemicolorToArray } from './libs/utils';
 export const installationConfig = rt.Record({
   command: rt.Undefined,
   pulumiVersion: rt.String,
-});
+})
 
-export type InstallationConfig = rt.Static<typeof installationConfig>;
+export type InstallationConfig = rt.Static<typeof installationConfig>
 
 export function makeInstallationConfig(): rt.Result<InstallationConfig> {
   return installationConfig.validate({
     command: getInput('command') || undefined,
     pulumiVersion: getInput('pulumi-version') || '^3',
-  });
+  })
 }
 
+function getRepoName() {
+  const githubRepository = process.env['GITHUB_REPOSITORY']
+  const repo = githubRepository.split('/')
+  return repo[1]
+}
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function makeConfig() {
+  const repoName = getRepoName()
+  const region = getInput('region', { required: true })
+  const environment = getInput('environment', { required: true })
+  const stackName = `${repoName}-${environment}-${region}`
   return {
     command: getUnionInput('command', {
       required: true,
       alternatives: ['up', 'update', 'refresh', 'destroy', 'preview'] as const,
     }),
-    stackName: getInput('stack-name', { required: true }),
+    //stackName: getInput('stack-name', { required: true }),
+    stackName,
     pulumiVersion: getInput('pulumi-version', { required: true }),
     workDir: getInput('work-dir', { required: true }),
     secretsProvider: getInput('secrets-provider'),
@@ -62,17 +72,15 @@ export function makeConfig() {
       target: parseSemicolorToArray(getMultilineInput('target')),
       targetDependents: getBooleanInput('target-dependents'),
       policyPacks: parseSemicolorToArray(getMultilineInput('policyPacks')),
-      policyPackConfigs: parseSemicolorToArray(
-        getMultilineInput('policyPackConfigs'),
-      ),
+      policyPackConfigs: parseSemicolorToArray(getMultilineInput('policyPackConfigs')),
       userAgent: 'pulumi/actions@v3',
       color: getUnionInput('color', {
         alternatives: ['always', 'never', 'raw', 'auto'] as const,
       }),
       excludeProtected: getBooleanInput('exclude-protected'),
     },
-  };
+  }
 }
 
-export type Config = ReturnType<typeof makeConfig>;
-export type Commands = Config['command'];
+export type Config = ReturnType<typeof makeConfig>
+export type Commands = Config['command']
