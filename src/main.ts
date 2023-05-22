@@ -1,8 +1,8 @@
+import * as fs from 'fs'
 import { resolve } from 'path'
 import * as core from '@actions/core'
 import { context } from '@actions/github'
 import { LocalProgramArgs, LocalWorkspace, LocalWorkspaceOptions } from '@pulumi/pulumi/automation'
-import * as fs from 'fs-extra'
 import invariant from 'ts-invariant'
 import { Commands, Config, InstallationConfig, makeConfig, makeInstallationConfig } from './config'
 import { environmentVariables } from './libs/envs'
@@ -24,17 +24,19 @@ const main = async () => {
 
   core.debug('Configuration is loaded')
 
-  copyFile(config)
-  runAction(config)
+  // copyFile(config)
+  // runAction(config)
+  console.log(process.cwd())
 }
 
-const copyFile = async (config: Config): Promise<void> => {
-  if (config.provision) {
-    await fs.copy('./infra/pulumi/shared.ts', '/infra/pulumi/index.ts')
-  } else {
-    await fs.copy('./infra/pulumi/deploy.ts', '/infra/pulumi/index.ts')
-  }
-}
+// const copyFile = async (config: Config): Promise<void> => {
+//   if (config.provision) {
+//     fs.copyFile
+//     await fs.copyFile('./infra/pulumi/shared.ts', '/infra/pulumi/index.ts')
+//   } else {
+//     await fs.copy('./infra/pulumi/deploy.ts', '/infra/pulumi/index.ts')
+//   }
+// }
 // installOnly is the main entrypoint of the program when the user
 // intends to install the Pulumi CLI without running additional commands.
 const installOnly = async (config: InstallationConfig): Promise<void> => {
