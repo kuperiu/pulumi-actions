@@ -12,7 +12,7 @@ import { login } from './login'
 
 async function copyFile(sourcePath: string, destinationPath: string): Promise<void> {
   try {
-    await fs.copy(sourcePath, destinationPath)
+    fs.copy(sourcePath, destinationPath)
     console.log('File copied successfully!')
   } catch (error) {
     console.error('Error copying file:', error)
@@ -33,9 +33,9 @@ const main = async () => {
   core.debug('Configuration is loaded')
 
   if (config.provision) {
-    await copyFile('shared.ts', 'index.ts')
+    copyFile('shared.ts', 'index.ts')
   } else {
-    await copyFile('deploy.ts', 'index.ts')
+    copyFile('deploy.ts', 'index.ts')
   }
   runAction(config)
 }
