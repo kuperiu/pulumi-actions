@@ -11,12 +11,12 @@ import * as pulumiCli from './libs/pulumi-cli'
 import { login } from './login'
 
 const main = async () => {
-  const downloadConfig = makeInstallationConfig()
-  if (downloadConfig.success) {
-    await installOnly(downloadConfig.value)
-    core.info('Pulumi has been successfully installed. Exiting.')
-    return
-  }
+  // const downloadConfig = makeInstallationConfig()
+  // if (downloadConfig.success) {
+  //   await installOnly(downloadConfig.value)
+  //   core.info('Pulumi has been successfully installed. Exiting.')
+  //   return
+  // }
 
   // If we get here, we're not in install-only mode.
   // Attempt to parse the full configuration and run the action.
