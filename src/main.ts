@@ -30,10 +30,18 @@ const main = async () => {
 }
 
 const copyFile = async (config: Config): Promise<void> => {
+  const mainFile = 'index.ts'
+  const sharedFile = 'shared.ts'
+  const deployFile = 'deploy.ts'
   if (config.provision) {
-    fs.copyFile('source.txt', 'destination.txt', (err) => {
+    fs.copyFile(sharedFile, mainFile, (err) => {
       if (err) throw err
-      console.log('source.txt was copied to destination.txt')
+      console.log(`${sharedFile} was copied to ${mainFile}`)
+    })
+  } else {
+    fs.copyFile(deployFile, mainFile, (err) => {
+      if (err) throw err
+      console.log(`${deployFile} was copied to ${mainFile}`)
     })
   }
 }
