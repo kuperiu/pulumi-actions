@@ -10,14 +10,6 @@ import { handlePullRequestMessage } from './libs/pr'
 import * as pulumiCli from './libs/pulumi-cli'
 import { login } from './login'
 
-async function copyFile(sourcePath: string, destinationPath: string): Promise<void> {
-  try {
-    fs.copy(sourcePath, destinationPath)
-    console.log('File copied successfully!')
-  } catch (error) {
-    console.error('Error copying file:', error)
-  }
-}
 const main = async () => {
   const downloadConfig = makeInstallationConfig()
   if (downloadConfig.success) {
@@ -33,9 +25,9 @@ const main = async () => {
   core.debug('Configuration is loaded')
 
   if (config.provision) {
-    copyFile('shared.ts', 'index.ts')
+    fs.copy('./infra/pulumi/shared.ts', '/infra/pulumi/index.ts')
   } else {
-    copyFile('deploy.ts', 'index.ts')
+    fs.copy('./infra/pulumi/deploy.ts', '/infra/pulumi/index.ts')
   }
   runAction(config)
 }
