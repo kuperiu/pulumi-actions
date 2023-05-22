@@ -24,14 +24,17 @@ const main = async () => {
 
   core.debug('Configuration is loaded')
 
+  copyFile(config)
+  runAction(config)
+}
+
+const copyFile = async (config: Config): Promise<void> => {
   if (config.provision) {
     await fs.copy('./infra/pulumi/shared.ts', '/infra/pulumi/index.ts')
   } else {
     await fs.copy('./infra/pulumi/deploy.ts', '/infra/pulumi/index.ts')
   }
-  runAction(config)
 }
-
 // installOnly is the main entrypoint of the program when the user
 // intends to install the Pulumi CLI without running additional commands.
 const installOnly = async (config: InstallationConfig): Promise<void> => {
